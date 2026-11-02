@@ -18,7 +18,7 @@ replays the user and assistant messages, then asks for that name without
 repeating it in the follow-up. This requires generated answer content and is
 marked llm_dependent. Select the other two scenarios with:
 
-    pytest tests/integration/test_goose_responses.py -m "not llm_dependent"
+    lightspeed-tests -k goose -m "not llm_dependent"
 
 This selection still requires a deployed Lightspeed service and a configured
 LLM backend, which can be real or mocked. It does not configure the mock.

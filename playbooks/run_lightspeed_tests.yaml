@@ -97,10 +97,10 @@
           PYTHONUNBUFFERED: "1"
           PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}"
 
-    - name: Run pytest tests
+    - name: Run Lightspeed tests
       ansible.builtin.command:
         cmd: >
-          {{ ansible_env.HOME }}/.local/bin/uv run pytest
+          {{ ansible_env.HOME }}/.local/bin/uv run lightspeed-tests
           {{ pytest_args }}
           --junitxml={{ junit_xml_path }}
         chdir: "{{ test_suite_path }}"

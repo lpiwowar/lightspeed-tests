@@ -2,39 +2,40 @@
 
 Test suite for RHOS Lightspeed in RHOSO environments.
 
-## Setup
+## Installation
+
+Python 3.12 is required. Install from a cloned repo:
 
 ```bash
-uv venv
-uv sync
+uv sync --python 3.12
+source .venv/bin/activate
 ```
+
+Or install the standalone command directly from GitHub:
+
+```bash
+uv tool install --python 3.12 git+https://github.com/openstack-k8s-operators/lightspeed-tests.git
+```
+
+The package includes the tests and their default configuration. Once installed,
+`lightspeed-tests` works from any directory. `lightspeed-test` is also available
+as an alias.
 
 ## Configuration
 
-Configure the service in `config/default.yaml`. For Goose API tests, set
-`goose.model` to the value of the Goose container's `LIGHTSPEED_MODEL`:
-
-```yaml
-rhos_lightspeed:
-  base_url: "http://localhost:8080"
-  timeout: 30
-
-query:
-  default_question: "What is OpenStack?"
-
-goose:
-  model: "<same value as Goose LIGHTSPEED_MODEL>"
-```
-
-Supply the bearer token through the environment:
+The tests load the default config from `src/rhos_lightspeed_tests/default.yaml`.
+Configure the service through environment variables:
 
 ```bash
+export RHOS_LIGHTSPEED_URL="https://localhost:8443"
 export RHOS_LIGHTSPEED_TOKEN="<Lightspeed bearer token>"
+export RHOS_LIGHTSPEED_MODEL="<same value as Goose LIGHTSPEED_MODEL>"
 ```
 
 `RHOS_LIGHTSPEED_URL` and `RHOS_LIGHTSPEED_MODEL` can override the URL and model
-from the config file. Use a service origin without `/v1`. With the test-operator
-playbook, supply `lightspeed_model`.
+from the default config. Use a service origin without `/v1`. With the test-operator
+playbook, supply `lightspeed_model`. For Goose API tests, set the model to the Goose
+container's `LIGHTSPEED_MODEL` value.
 
 If you run the tests outside of OpenShift, you need to have a running port forward
 for the `lightspeed-app-server` service. For example:
@@ -45,29 +46,44 @@ oc port-forward -n openstack-lightspeed svc/lightspeed-app-server 8443:8443
 
 ## Running tests
 
+The command accepts pytest options and returns pytest's exit status. In a uv
+checkout, prefix the commands below with `uv run`.
+
 ```bash
 # Run all tests
-uv run pytest
+lightspeed-tests
 
 # Run integration tests only
-uv run pytest tests/integration/
+lightspeed-tests -k integration
+
+# Run one installed test module
+lightspeed-tests rhos_lightspeed_tests.tests.integration.test_query_endpoint
+
+# Run one test file from a checkout
+lightspeed-tests src/rhos_lightspeed_tests/tests/integration/test_query_endpoint.py
 
 # Run Goose API tests
-uv run pytest tests/integration/test_goose_responses.py
+lightspeed-tests -k goose
 
 # Skip Goose tests that require a real LLM's answer content
-uv run pytest tests/integration/test_goose_responses.py -m "not llm_dependent"
+lightspeed-tests -k goose -m "not llm_dependent"
 
-# Generate JUnit XML (automatic via pyproject.toml config)
-uv run pytest  # outputs test-results.xml
+# Verify test discovery without contacting a service
+lightspeed-tests --collect-only
+
+# Choose a different JUnit XML report path
+lightspeed-tests --junitxml=results.xml
 ```
+
+Integration tests require a deployed Lightspeed service. Goose tests also
+require a configured model.
 
 ## Adding tests
 
 1. Create test file in appropriate directory:
-   - `tests/unit/` - Fast, isolated tests
-   - `tests/integration/` - Tests requiring deployed service
-   - `tests/e2e/` - Full end-to-end scenarios
+   - `src/rhos_lightspeed_tests/tests/unit/` - Fast, isolated suite tests
+   - `src/rhos_lightspeed_tests/tests/integration/` - Tests requiring deployed service
+   - `src/rhos_lightspeed_tests/tests/e2e/` - Full end-to-end scenarios
 
 2. Use the shared fixtures from `conftest.py`:
    ```python
@@ -77,24 +93,25 @@ uv run pytest  # outputs test-results.xml
            assert response.status_code == 200
    ```
 
-3. Run: `uv run pytest tests/integration/test_my_feature.py`
+3. Run: `uv run lightspeed-tests -k test_my_feature`
+
+Build a source distribution and wheel with `uv build`.
 
 ## Project structure
 
 ```
 rhos-lightspeed-tests/
-├── config/
-│   └── default.yaml                 # Default test configuration
-├── src/rhos_lightspeed_tests/       # Shared utilities
-│   ├── __init__.py
+├── src/rhos_lightspeed_tests/       # Installed package
+│   ├── __init__.py                  # lightspeed-tests entry point
 │   ├── client.py                    # API client (query, health)
-│   └── config.py                    # Reads default.yaml, env var overrides
-├── tests/
-│   ├── conftest.py                  # Shared fixtures (config, client)
-│   ├── unit/
-│   ├── integration/
-│   │   └── test_query_endpoint.py   # First test: /query endpoint
-│   └── e2e/
+│   ├── config.py                    # Loads defaults and environment overrides
+│   ├── default.yaml                 # Bundled default configuration
+│   ├── pytest.ini                   # Bundled pytest settings and default suite
+│   └── tests/
+│       ├── conftest.py              # Shared fixtures (config, client)
+│       ├── unit/
+│       ├── integration/
+│       └── e2e/
 ├── pyproject.toml
 └── README.md
 ```

@@ -4,14 +4,14 @@ Ansible playbooks to run the test suite.
 
 ## `run_lightspeed_tests.yaml`
 
-Executes the RHOS Lightspeed test suite using pytest. The playbook:
+Executes the RHOS Lightspeed test suite using `lightspeed-tests`. The playbook:
 
 1. Installs the [uv](https://astral.sh/uv) package manager if not already available
 2. Installs Python 3.12 using uv
 3. Verifies the test suite directory exists (cloned by test-operator)
 4. Reads the Kubernetes service account token for authentication
 5. Installs Python dependencies using uv
-6. Runs the pytest test suite with configurable arguments
+6. Runs `lightspeed-tests` with configurable pytest arguments
 7. Generates JUnit XML test results for reporting
 
 Test results are stored in the location specified by `junit_xml_path`, which the test-operator can consume for reporting.
