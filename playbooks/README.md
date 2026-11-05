@@ -23,6 +23,11 @@ All parameters can be overridden via the `AnsibleTest` custom resource when runn
 * `lightspeed_url`: (String) URL of the Lightspeed service to test against. Default value: `https://lightspeed-app-server.openstack-lightspeed.svc.cluster.local:8443`
 * `lightspeed_timeout`: (Integer) Timeout in seconds for Lightspeed API requests. Default value: `30`
 * `test_question`: (String) Sample question for testing. Default value: `What is OpenStack?`
+* `assistant_namespace`: (String) Namespace where the OpenStack Assistant (goose pod) is deployed. The e2e goose pod test skips when the assistant is not deployed there. Default value: `openstack`
+* `assistant_name`: (String) Name of the OpenStackAssistant custom resource. Default value: `openstack-assistant`
+* `assistant_question`: (String) Question passed to `goose run -t` in the assistant pod. Default value: `What is nova in OpenStack?`
+* `assistant_pod_timeout`: (Integer) Seconds to wait for the assistant pod to be Running and ready. Default value: `120`
+* `assistant_timeout`: (Integer) Seconds for the `goose run` exec in the assistant pod; LLM round trips and tool use can be slow. Default value: `300`
 * `pytest_args`: (String) Additional arguments to pass to pytest. Default value: `-v --tb=short --color=yes`
 * `junit_xml_path`: (String) Path where JUnit XML test results will be written. The test-operator provides writable storage at this location. Default value: `/var/lib/AnsibleTests/external_files/test-results.xml`
 * `test_suite_path`: (String) Path to the test suite directory. The test-operator clones git repositories to this location. Default value: `{{ ansible_env.HOME }}/ansible`
@@ -58,6 +63,48 @@ subjects:
 ```
 
 And run `oc apply -f lightspeed-auth-resources.yaml`. This will grant Lightspeed service access  to `default` service account used by the test-operator.
+
+When the OpenStack Assistant (goose pod) e2e test should also run, the
+AnsibleTest pod's service account additionally needs, in the assistant's
+namespace, permission to find the assistant pod and exec into it. Create a
+file `lightspeed-goose-pod-resources.yaml` (adjust the subject to the
+service account the AnsibleTest pod actually uses; see the README section
+"RBAC for the test-operator run"):
+
+```yaml
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: lightspeed-goose-pod-test-role
+  namespace: openstack
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list"]
+- apiGroups: [""]
+  resources: ["pods/exec"]
+  verbs: ["create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: lightspeed-goose-pod-test-role-binding
+  namespace: openstack
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: lightspeed-goose-pod-test-role
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: openstack-lightspeed
+```
+
+Without this role the goose pod e2e test skips (it cannot look for the
+assistant pod); the rest of the suite is unaffected. Deploy the assistant
+with `make openstack_assistant` (install_yamls) before running the suite
+when the test should execute.
 
 2\. Create a file `lightspeed-dummy-resources.yaml` with the following content:
 

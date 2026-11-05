@@ -10,3 +10,18 @@ query:
 goose:
   # Set RHOS_LIGHTSPEED_MODEL to the Goose container's LIGHTSPEED_MODEL value.
   model: ""
+
+goose_pod:
+  # OpenStack Assistant (goose) e2e test. The assistant is deployed by
+  # `make openstack_assistant` (install_yamls) as an OpenStackAssistant CR
+  # that the openstack-operator reconciles into a pod labeled
+  # service=<pod_label>. The test skips when that pod is not deployed.
+  namespace: "openstack"
+  assistant_name: "openstack-assistant"
+  pod_label: "openstackassistant"
+  question: "What is nova in OpenStack?"
+  # Waiting for the assistant pod to be Running and ready.
+  pod_timeout: 120
+  # goose run exec timeout; LLM round trips can be slow, and the
+  # auto-allowed tools (oc) can be even slower.
+  timeout: 300

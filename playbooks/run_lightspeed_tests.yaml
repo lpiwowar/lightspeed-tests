@@ -9,6 +9,15 @@
     # Match the Goose container's LIGHTSPEED_MODEL for the Goose API tests.
     lightspeed_model: ""
     test_question: "What is OpenStack?"
+    # OpenStack Assistant (goose pod) e2e test. The test skips when the
+    # assistant is not deployed in assistant_namespace.
+    assistant_namespace: "openstack"
+    assistant_name: "openstack-assistant"
+    assistant_question: "What is nova in OpenStack?"
+    # Seconds to wait for the assistant pod to be Running and ready
+    assistant_pod_timeout: 120
+    # Seconds for the goose run exec; LLM round trips can be slow
+    assistant_timeout: 300
     pytest_args: "-v --tb=short --color=yes"
     # Test-operator provides writable storage at this location
     junit_xml_path: "/var/lib/AnsibleTests/external_files/test-results.xml"
@@ -22,6 +31,7 @@
           - "Lightspeed URL: {{ lightspeed_url }}"
           - "Test suite path: {{ test_suite_path }}"
           - "JUnit XML output: {{ junit_xml_path }}"
+          - "Assistant namespace: {{ assistant_namespace }} (test skips when not deployed)"
 
     - name: Check if uv is installed
       ansible.builtin.command: which uv
@@ -94,6 +104,11 @@
           RHOS_LIGHTSPEED_URL: "{{ lightspeed_url }}"
           RHOS_LIGHTSPEED_TOKEN: "{{ lightspeed_token }}"
           RHOS_LIGHTSPEED_MODEL: "{{ lightspeed_model }}"
+          RHOS_LIGHTSPEED_ASSISTANT_NAMESPACE: "{{ assistant_namespace }}"
+          RHOS_LIGHTSPEED_ASSISTANT_NAME: "{{ assistant_name }}"
+          RHOS_LIGHTSPEED_ASSISTANT_QUESTION: "{{ assistant_question }}"
+          RHOS_LIGHTSPEED_ASSISTANT_POD_TIMEOUT: "{{ assistant_pod_timeout }}"
+          RHOS_LIGHTSPEED_ASSISTANT_TIMEOUT: "{{ assistant_timeout }}"
           PYTHONUNBUFFERED: "1"
           PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}"
 

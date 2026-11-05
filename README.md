@@ -37,6 +37,18 @@ from the default config. Use a service origin without `/v1`. With the test-opera
 playbook, supply `lightspeed_model`. For Goose API tests, set the model to the Goose
 container's `LIGHTSPEED_MODEL` value.
 
+The goose pod e2e test (see below) is configured with:
+
+```bash
+export RHOS_LIGHTSPEED_ASSISTANT_NAMESPACE="openstack"
+export RHOS_LIGHTSPEED_ASSISTANT_NAME="openstack-assistant"
+export RHOS_LIGHTSPEED_ASSISTANT_QUESTION="What is nova in OpenStack?"
+export RHOS_LIGHTSPEED_ASSISTANT_POD_TIMEOUT=120  # wait for the pod, seconds
+export RHOS_LIGHTSPEED_ASSISTANT_TIMEOUT=300      # goose run exec, seconds
+```
+
+All of them have sensible defaults and can usually be left unset.
+
 If you run the tests outside of OpenShift, you need to have a running port forward
 for the `lightspeed-app-server` service. For example:
 
@@ -78,6 +90,80 @@ lightspeed-tests --junitxml=results.xml
 Integration tests require a deployed Lightspeed service. Goose tests also
 require a configured model.
 
+## OpenStack Assistant (goose pod) e2e test
+
+`tests/e2e/test_goose_pod.py` runs against a cluster where the OpenStack
+Assistant is deployed, e.g. with `make openstack_assistant` from an
+[install_yamls](https://github.com/openstack-k8s-operators/install_yamls)
+checkout (control plane with `openstackclient` and Lightspeed first; the
+target enables the OpenStack MCP server automatically). The test execs into
+the assistant pod and runs goose in headless mode:
+
+```
+goose run -t "<question>" --output-format json --no-session
+```
+
+It asserts that the run completes with a non-empty answer. The exec-launched
+goose inherits the image's `GOOSE_ADDITIONAL_CONFIG_FILES`, so the rendered
+lightspeed provider and MCP servers apply. The elapsed time is printed and
+included in the JUnit report (via `junit_logging = system-out`) to help tune
+the timeouts.
+
+Run it locally with cluster access (`KUBECONFIG`, or in-cluster credentials
+inside the AnsibleTest pod):
+
+```bash
+uv run lightspeed-tests src/rhos_lightspeed_tests/tests/e2e/test_goose_pod.py -v
+```
+
+The test **skips** when the assistant pod is not deployed — including when
+there are no usable cluster credentials or the lookup is not permitted —
+so bare runs stay green in environments without the assistant. Check the
+skip reason to tell "not deployed" from a missing-permissions skip.
+
+### RBAC for the test-operator run
+
+The AnsibleTest pod's service account needs, in the assistant's namespace
+(`openstack` by default), permission to find the pod and exec into it:
+
+```yaml
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: lightspeed-goose-pod-test-role
+  namespace: openstack
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list"]
+- apiGroups: [""]
+  resources: ["pods/exec"]
+  verbs: ["create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: lightspeed-goose-pod-test-role-binding
+  namespace: openstack
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: lightspeed-goose-pod-test-role
+subjects:
+- kind: ServiceAccount
+  name: <AnsibleTest pod's service account>
+  namespace: <AnsibleTest CR's namespace>
+```
+
+Confirm the subject with
+`oc get pod <ansibletest pod> -o jsonpath='{.spec.serviceAccountName}'`.
+Current test-operator versions give each AnsibleTest CR a dedicated
+`ansibletest-<CR-name>` service account in the CR's namespace; older
+versions used the namespace's `default` service account. Without this
+role the e2e test skips with a "Cannot look for the assistant pod" reason
+(the pod lookup is forbidden).
+
 ## Adding tests
 
 1. Create test file in appropriate directory:
@@ -104,6 +190,7 @@ rhos-lightspeed-tests/
 ├── src/rhos_lightspeed_tests/       # Installed package
 │   ├── __init__.py                  # lightspeed-tests entry point
 │   ├── client.py                    # API client (query, health)
+│   ├── cluster.py                   # Kubernetes access (pod exec for e2e)
 │   ├── config.py                    # Loads defaults and environment overrides
 │   ├── default.yaml                 # Bundled default configuration
 │   ├── pytest.ini                   # Bundled pytest settings and default suite
