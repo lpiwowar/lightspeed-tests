@@ -10,3 +10,13 @@ query:
 goose:
   # Set RHOS_LIGHTSPEED_MODEL to the Goose container's LIGHTSPEED_MODEL value.
   model: ""
+
+openshift:
+  service_account_token_path: "/var/run/secrets/kubernetes.io/serviceaccount/token"
+  service_account_ca_cert_path: "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+  # Optional local fallback. When null, Kubernetes uses ~/.kube/config.
+  kubeconfig_path: null
+
+openstack_assistant_pod:
+  namespace: "openstack"
+  name: "openstack-assistant"

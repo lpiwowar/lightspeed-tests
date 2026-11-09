@@ -65,6 +65,10 @@ lightspeed-tests src/rhos_lightspeed_tests/tests/integration/test_query_endpoint
 # Run Goose API tests
 lightspeed-tests -k goose
 
+# Run OpenShift-dependent tests, including the Goose ACP test. This requires either
+# in-cluster service-account credentials or a kubeconfig with pods/exec access.
+lightspeed-tests -m openshift_dependent
+
 # Skip Goose tests that require a real LLM's answer content
 lightspeed-tests -k goose -m "not llm_dependent"
 
