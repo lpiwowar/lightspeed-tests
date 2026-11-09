@@ -19,3 +19,14 @@ prometheus:
   # Timeout in seconds for each Prometheus API request.
   api_timeout: 10
   scrape_timeout: 120
+
+openshift:
+  service_account_token_path: "/var/run/secrets/kubernetes.io/serviceaccount/token"
+  api_server_ca_cert_path: "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+  # Optional local fallback. When null, Kubernetes uses ~/.kube/config.
+  kubeconfig_path: null
+  timeout: 300
+
+openstack_assistant_pod:
+  namespace: "openstack"
+  name: "openstack-assistant"
