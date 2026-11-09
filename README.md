@@ -65,6 +65,23 @@ lightspeed-tests src/rhos_lightspeed_tests/tests/integration/test_query_endpoint
 # Run Goose API tests
 lightspeed-tests -k goose
 
+# Run tests for OpenStack Assistant (goose). This requires either in-cluster
+# service-account credentials or a kubeconfig with pod/exec access. See the
+# following environment variables configure the OpenStack Assistant test:
+#   * RHOS_LIGHTSPEED_OPENSHIFT_SERVICE_ACCOUNT_TOKEN_PATH: sets the path to
+#     the in-cluster service-account token used to authenticate pod/exec calls.
+#   * RHOS_LIGHTSPEED_OPENSHIFT_API_SERVER_CA_CERT_PATH: sets the path to
+#     the cluster CA certificate used to verify the API server for pod/exec calls.
+#   * RHOS_LIGHTSPEED_OPENSHIFT_KUBECONFIG_PATH: sets the kubeconfig used for
+#     pod/exec access when the test is run outside the cluster.
+#   * RHOS_LIGHTSPEED_OPENSHIFT_TIMEOUT: sets the maximum time, in seconds, the
+#     test allows for OpenShift API and pod/exec operations.
+#   * RHOS_LIGHTSPEED_OPENSTACK_ASSISTANT_POD_NAMESPACE: sets the namespace of
+#     the OpenStack Assistant pod that the test connects to.
+#   * RHOS_LIGHTSPEED_OPENSTACK_ASSISTANT_POD_NAME: sets the name of the
+#     OpenStack Assistant pod that the test connects to.
+lightspeed-tests -m openstack_assistant
+
 # Skip Goose tests that require a real LLM's answer content
 lightspeed-tests -k goose -m "not llm_dependent"
 

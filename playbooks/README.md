@@ -22,6 +22,13 @@ All parameters can be overridden via the `AnsibleTest` custom resource when runn
 
 * `lightspeed_url`: (String) URL of the Lightspeed service to test against. Default value: `https://lightspeed-app-server.openstack-lightspeed.svc.cluster.local:8443`
 * `lightspeed_timeout`: (Integer) Timeout in seconds for Lightspeed API requests. Default value: `30`
+* `lightspeed_model`: (String) Goose model to use for Goose API tests. Default value: empty.
+* `openshift_service_account_token_path`: (String) Path to the service-account token used for OpenShift pod/exec calls. Default value: `/var/run/secrets/kubernetes.io/serviceaccount/token`
+* `openshift_api_server_ca_cert_path`: (String) Path to the cluster CA certificate used for OpenShift pod/exec calls. Default value: `/var/run/secrets/kubernetes.io/serviceaccount/ca.crt`
+* `openshift_kubeconfig_path`: (String) Optional kubeconfig path for OpenShift pod/exec calls outside the cluster. Default value: empty.
+* `openshift_timeout`: (Integer) Timeout in seconds for OpenShift API and pod/exec calls. Default value: `300`
+* `openstack_assistant_pod_namespace`: (String) Namespace containing the OpenStack Assistant pod. Default value: `openstack`
+* `openstack_assistant_pod_name`: (String) Name of the OpenStack Assistant pod. Default value: `openstack-assistant`
 * `test_question`: (String) Sample question for testing. Default value: `What is OpenStack?`
 * `pytest_args`: (String) Additional arguments to pass to pytest. Default value: `-v --tb=short --color=yes`
 * `junit_xml_path`: (String) Path where JUnit XML test results will be written. The test-operator provides writable storage at this location. Default value: `/var/lib/AnsibleTests/external_files/test-results.xml`
@@ -159,6 +166,14 @@ spec:
     lightspeed_timeout: 30
     # Same value as the Goose container's LIGHTSPEED_MODEL
     lightspeed_model: "<your configured model>"
+    # OpenStack Assistant pod-exec test settings
+    openshift_service_account_token_path: "/var/run/secrets/kubernetes.io/serviceaccount/token"
+    openshift_api_server_ca_cert_path: "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+    # Set when running outside the cluster; otherwise leave empty.
+    openshift_kubeconfig_path: ""
+    openshift_timeout: 300
+    openstack_assistant_pod_namespace: "openstack"
+    openstack_assistant_pod_name: "openstack-assistant"
     test_question: "What is OpenStack?"
     # Pytest options
     pytest_args: "-v --tb=short --color=yes"
