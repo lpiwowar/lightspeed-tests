@@ -8,6 +8,13 @@
     lightspeed_timeout: 30
     # Match the Goose container's LIGHTSPEED_MODEL for the Goose API tests.
     lightspeed_model: ""
+    # Settings used by the OpenStack Assistant pod-exec test.
+    openshift_service_account_token_path: "/var/run/secrets/kubernetes.io/serviceaccount/token"
+    openshift_api_server_ca_cert_path: "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+    openshift_kubeconfig_path: ""
+    openshift_timeout: 300
+    openstack_assistant_pod_namespace: "openstack"
+    openstack_assistant_pod_name: "openstack-assistant"
     test_question: "What is OpenStack?"
     pytest_args: "-v --tb=short --color=yes"
     # Test-operator provides writable storage at this location
@@ -94,6 +101,12 @@
           RHOS_LIGHTSPEED_URL: "{{ lightspeed_url }}"
           RHOS_LIGHTSPEED_TOKEN: "{{ lightspeed_token }}"
           RHOS_LIGHTSPEED_MODEL: "{{ lightspeed_model }}"
+          RHOS_LIGHTSPEED_OPENSHIFT_SERVICE_ACCOUNT_TOKEN_PATH: "{{ openshift_service_account_token_path }}"
+          RHOS_LIGHTSPEED_OPENSHIFT_API_SERVER_CA_CERT_PATH: "{{ openshift_api_server_ca_cert_path }}"
+          RHOS_LIGHTSPEED_OPENSHIFT_KUBECONFIG_PATH: "{{ openshift_kubeconfig_path }}"
+          RHOS_LIGHTSPEED_OPENSHIFT_TIMEOUT: "{{ openshift_timeout }}"
+          RHOS_LIGHTSPEED_OPENSTACK_ASSISTANT_POD_NAMESPACE: "{{ openstack_assistant_pod_namespace }}"
+          RHOS_LIGHTSPEED_OPENSTACK_ASSISTANT_POD_NAME: "{{ openstack_assistant_pod_name }}"
           PYTHONUNBUFFERED: "1"
           PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}"
 
