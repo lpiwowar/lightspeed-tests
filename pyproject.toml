@@ -39,3 +39,4 @@ extend-select = ["S"]
 
 [tool.ruff.lint.per-file-ignores]
 "src/rhos_lightspeed_tests/tests/**/*.py" = ["S101"]
+"src/rhos_lightspeed_tests/lightspeed_tests/**/*.py" = ["S101"]

@@ -11,7 +11,7 @@ def main() -> int:
     return pytest.main(
         [
             "-c",
-            str(Path(__file__).with_name("pytest.ini")),
+            str(Path(__file__).with_name("lightspeed_tests") / "pytest.ini"),
             # Apply testpaths from any working directory and keep the cache there.
             "--rootdir",
             str(Path.cwd()),
