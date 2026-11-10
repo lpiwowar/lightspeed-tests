@@ -2,8 +2,8 @@
 
 import pytest
 
-from rhos_lightspeed_tests.client import RHOSLightspeedClient
-from rhos_lightspeed_tests.config import load_config
+from rhos_lightspeed_tests.lib.client import RHOSLightspeedClient
+from rhos_lightspeed_tests.lib.config import load_config
 
 
 @pytest.fixture

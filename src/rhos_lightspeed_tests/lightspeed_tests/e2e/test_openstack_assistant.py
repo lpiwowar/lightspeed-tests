@@ -2,7 +2,7 @@
 
 import pytest
 
-from rhos_lightspeed_tests.acp import AcpClient, PodExecTransport
+from rhos_lightspeed_tests.lib.acp import AcpClient, PodExecTransport
 
 
 class TestOpenStackAssistant:
