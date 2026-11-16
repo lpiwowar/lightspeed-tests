@@ -1,13 +1,13 @@
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.16.1
+    rev: v0.17.4
     hooks:
       - id: ruff-check
       - id: ruff-format
   - repo: https://github.com/ansible/ansible-lint
-    rev: v24.12.2
+    rev: v26.11.0
     hooks:
       - id: ansible-lint
         files: ^playbooks/.*\.(yaml|yml)$
         additional_dependencies:
-          - ansible-core==2.18.18
+          - ansible-core==2.22.0
