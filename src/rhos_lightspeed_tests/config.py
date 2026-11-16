@@ -26,4 +26,25 @@ def load_config(config_path: str | None = None) -> dict:
     goose = config.setdefault("goose", {})
     goose["model"] = os.environ.get("RHOS_LIGHTSPEED_MODEL", goose.get("model", ""))
 
+    prometheus = config.setdefault("prometheus", {})
+    prometheus["url"] = os.environ.get(
+        "RHOS_LIGHTSPEED_PROMETHEUS_URL", prometheus.get("url", "")
+    )
+    prometheus["ca_cert_path"] = os.environ.get(
+        "RHOS_LIGHTSPEED_PROMETHEUS_CA_CERT_PATH",
+        prometheus.get("ca_cert_path", ""),
+    )
+    prometheus["api_timeout"] = float(
+        os.environ.get(
+            "RHOS_LIGHTSPEED_PROMETHEUS_API_TIMEOUT",
+            prometheus.get("api_timeout", 10),
+        )
+    )
+    prometheus["scrape_timeout"] = float(
+        os.environ.get(
+            "RHOS_LIGHTSPEED_PROMETHEUS_SCRAPE_TIMEOUT",
+            prometheus.get("scrape_timeout", 120),
+        )
+    )
+
     return config

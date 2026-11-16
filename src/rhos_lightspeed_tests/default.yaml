@@ -10,3 +10,12 @@ query:
 goose:
   # Set RHOS_LIGHTSPEED_MODEL to the Goose container's LIGHTSPEED_MODEL value.
   model: ""
+
+prometheus:
+  # Required when running tests with -m telemetry.
+  url: ""
+  # Optional PEM CA bundle; empty uses Requests' default trust store.
+  ca_cert_path: ""
+  # Timeout in seconds for each Prometheus API request.
+  api_timeout: 10
+  scrape_timeout: 120

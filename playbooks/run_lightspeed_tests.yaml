@@ -8,6 +8,11 @@
     lightspeed_timeout: 30
     # Match the Goose container's LIGHTSPEED_MODEL for the Goose API tests.
     lightspeed_model: ""
+    # Required when pytest_args selects telemetry tests.
+    prometheus_url: ""
+    prometheus_ca_cert_path: ""
+    prometheus_api_timeout: 10
+    prometheus_scrape_timeout: 120
     test_question: "What is OpenStack?"
     pytest_args: "-v --tb=short --color=yes"
     # Test-operator provides writable storage at this location
@@ -94,6 +99,10 @@
           RHOS_LIGHTSPEED_URL: "{{ lightspeed_url }}"
           RHOS_LIGHTSPEED_TOKEN: "{{ lightspeed_token }}"
           RHOS_LIGHTSPEED_MODEL: "{{ lightspeed_model }}"
+          RHOS_LIGHTSPEED_PROMETHEUS_URL: "{{ prometheus_url }}"
+          RHOS_LIGHTSPEED_PROMETHEUS_CA_CERT_PATH: "{{ prometheus_ca_cert_path }}"
+          RHOS_LIGHTSPEED_PROMETHEUS_API_TIMEOUT: "{{ prometheus_api_timeout | string }}"
+          RHOS_LIGHTSPEED_PROMETHEUS_SCRAPE_TIMEOUT: "{{ prometheus_scrape_timeout | string }}"
           PYTHONUNBUFFERED: "1"
           PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}"
 

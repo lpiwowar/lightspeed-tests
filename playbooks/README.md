@@ -26,6 +26,10 @@ All parameters can be overridden via the `AnsibleTest` custom resource when runn
 * `pytest_args`: (String) Additional arguments to pass to pytest. Default value: `-v --tb=short --color=yes`
 * `junit_xml_path`: (String) Path where JUnit XML test results will be written. The test-operator provides writable storage at this location. Default value: `/var/lib/AnsibleTests/external_files/test-results.xml`
 * `test_suite_path`: (String) Path to the test suite directory. The test-operator clones git repositories to this location. Default value: `{{ ansible_env.HOME }}/ansible`
+* `prometheus_url`: (String) Telemetry Prometheus URL. Empty by default; required when selecting telemetry tests.
+* `prometheus_ca_cert_path`: (String) Path inside the test pod to a PEM CA bundle for Prometheus. Empty by default, which uses Requests' default trust store. TLS verification is always enabled.
+* `prometheus_api_timeout`: (Number) Timeout in seconds for each Prometheus API request. Default: `10`.
+* `prometheus_scrape_timeout`: (Number) Time in seconds to poll for a positive collected LLM call counter. Default: `120`.
 
 ### Usage
 

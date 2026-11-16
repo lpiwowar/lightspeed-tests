@@ -44,14 +44,50 @@ for the `lightspeed-app-server` service. For example:
 oc port-forward -n openstack-lightspeed svc/lightspeed-app-server 8443:8443
 ```
 
+Telemetry tests are excluded by default. To run them, deploy Lightspeed and
+enable its metrics collection through telemetry-operator. Configure the
+Lightspeed URL and token above, then set a reachable Prometheus URL. TLS
+verification is enabled by default. For an internal CA, set
+`RHOS_LIGHTSPEED_PROMETHEUS_CA_CERT_PATH` (`prometheus.ca_cert_path`) to its
+PEM CA bundle:
+
+```bash
+export RHOS_LIGHTSPEED_PROMETHEUS_URL="https://metric-storage-prometheus.openstack.svc:9090"
+export RHOS_LIGHTSPEED_PROMETHEUS_CA_CERT_PATH="/path/to/prometheus-ca.pem"
+lightspeed-tests -m telemetry
+```
+
+If you run the telemetry test outside of OpenShift, you need to have a running port forward
+for the `metric-storage-prometheus` service. For example:
+
+```
+oc port-forward -n openstack svc/metric-storage-prometheus 9090:9090
+```
+
+Map `metric-storage-prometheus.openstack.svc` to `127.0.0.1` in your local
+hosts file and keep the service hostname in the URL above so TLS hostname
+verification succeeds. Export the OpenStack control plane CA bundle locally:
+
+```bash
+oc -n openstack get secret combined-ca-bundle \
+  -o jsonpath='{.data.tls-ca-bundle\.pem}' | base64 --decode > prometheus-ca.pem
+export RHOS_LIGHTSPEED_PROMETHEUS_CA_CERT_PATH="$PWD/prometheus-ca.pem"
+```
+
 ## Running tests
 
 The command accepts pytest options and returns pytest's exit status. In a uv
-checkout, prefix the commands below with `uv run`.
+checkout, prefix the commands below with `uv run`. An explicit `-m` expression
+replaces the default `not telemetry` filter. For example, `-m "not llm_dependent"`
+also includes telemetry; use `-m "not llm_dependent and not telemetry"` to exclude
+both groups.
 
 ```bash
-# Run all tests
+# Run the default suite (excludes telemetry)
 lightspeed-tests
+
+# Run all tests, including telemetry (requires Prometheus configuration)
+lightspeed-tests -m ""
 
 # Run integration tests only
 lightspeed-tests -k integration
