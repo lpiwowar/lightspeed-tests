@@ -1,4 +1,5 @@
 # rhos-lightspeed-tests
+# Hello world
 
 Test suite for RHOS Lightspeed in RHOSO environments.
 
