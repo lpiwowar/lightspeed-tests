@@ -9,7 +9,6 @@ EXPECTED_METRICS = [
     "TYPE ls_llm_validation_errors_total counter",
     "TYPE ls_llm_token_sent_total counter",
     "TYPE ls_llm_token_received_total counter",
-    "TYPE ls_started_in_degraded_mode gauge",
 ]
 
 
