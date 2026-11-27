@@ -6,7 +6,6 @@ from rhos_lightspeed_tests.lib.acp import ACPClient, PodExecTransport
 
 
 class TestOpenStackAssistant:
-    @pytest.mark.xfail(reason="Waiting for OSPRH-40495 to be resolved", strict=True)
     @pytest.mark.openstack_assistant
     def test_goose_query(self, config):
         """Goose ACP answers an OpenStack question successfully from its pod."""
